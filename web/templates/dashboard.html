@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MxmzaPro Dashboard 🔥</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0a0a 100%);
+            font-family: 'Courier New', monospace;
+            color: #ff4444;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255,0,0,0.3);
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            text-shadow: 0 0 10px #ff0000;
+        }
+        
+        .status-bar {
+            background: #000;
+            border: 1px solid #ff0000;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: rgba(0,0,0,0.85);
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
+            transform: translateY(-2px);
+        }
+        
+        .card h3 {
+            color: #ff6666;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ff0000;
+            padding-bottom: 10px;
+        }
+        
+        button {
+            background: #ff0000;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: monospace;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #ff4444;
+            transform: scale(1.05);
+        }
+        
+        button.danger {
+            background: #330000;
+            color: #ff0000;
+            border: 1px solid #ff0000;
+        }
+        
+        input, select {
+            background: #111;
+            border: 1px solid #ff0000;
+            color: #ff6666;
+            padding: 8px;
+            margin: 5px;
+            font-family: monospace;
+            width: calc(100% - 20px);
+        }
+        
+        .proxy-list {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #0a0a0a;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .proxy-item {
+            padding: 5px;
+            margin: 2px;
+            background: #1a1a1a;
+            font-size: 12px;
+            font-family: monospace;
+        }
+        
+        .proxy-item.working {
+            color: #00ff00;
+            border-left: 3px solid #00ff00;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #000;
+            border-radius: 5px;
+            border: 1px solid #ff0000;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #ff0000;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .running {
+            animation: blink 1s infinite;
+            color: #00ff00;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 MXMZAPRO 🔥</h1>
+            <p>Proxy Swarm Control Center</p>
+        </div>
+        
+        <div class="status-bar" id="statusBar">
+            System ready. 🔴
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stat-box">
+                <div>Scraped Proxies</div>
+                <div class="stat-number" id="scrapedCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Working Proxies</div>
+                <div class="stat-number" id="workingCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div>Rotator Status</div>
+                <div class="stat-number" id="rotatorStatus">STOPPED</div>
+            </div>
+        </div>
+        
+        <div class="grid">
+            <!-- Scrape Panel -->
+            <div class="card">
+                <h3>📡 PROXY SCRAPER</h3>
+                <input type="number" id="scrapeLimit" placeholder="Limit (max 1000)" value="100">
+                <button onclick="scrapeProxies()">SCRAPE NOW</button>
+                <div class="proxy-list" id="scrapedList">
+                    <div class="proxy-item">No proxies scraped yet</div>
+                </div>
+            </div>
+            
+            <!-- Check Panel -->
+            <div class="card">
+                <h3>✅ PROXY CHECKER</h3>
+                <select id="protocol">
+                    <option value="http">HTTP/HTTPS</option>
+                    <option value="socks4">SOCKS4</option>
+                    <option value="socks5">SOCKS5</option>
+                </select>
+                <button onclick="checkProxies()">CHECK ALL</button>
+                <div class="proxy-list" id="workingList">
+                    <div class="proxy-item">No working proxies yet</div>
+                </div>
+            </div>
+            
+            <!-- Rotator Panel -->
+            <div class="card">
+                <h3>🔄 PROXY ROTATOR</h3>
+                <input type="number" id="rotatorPort" placeholder="Port" value="8080">
+                <button onclick="startRotator()">START ROTATOR</button>
+                <button class="danger" onclick="stopRotator()">STOP ROTATOR</button>
+                <div id="rotatorInfo"></div>
+            </div>
+            
+            <!-- SOCKS Panel -->
+            <div class="card">
+                <h3>🧦 SOCKS TESTER</h3>
+                <input type="text" id="socksProxy" placeholder="IP:PORT (e.g., 127.0.0.1:1080)">
+                <select id="socksType">
+                    <option value="socks5">SOCKS5</option>
+                    <option value="socks4">SOCKS4</option>
+                </select>
+                <button onclick="testSocks()">TEST SOCKS</button>
+                <div id="socksResult"></div>
+            </div>
+            
+            <!-- Chain Panel -->
+            <div class="card">
+                <h3>🔗 PROXY CHAIN</h3>
+                <input type="text" id="chainProxies" placeholder="Proxy1,Proxy2,Proxy3 (IP:PORT)">
+                <input type="text" id="targetUrl" placeholder="Target URL" value="http://httpbin.org/ip">
+                <button onclick="testChain()">TEST CHAIN</button>
+                <div id="chainResult"></div>
+            </div>
+            
+            <!-- Stats Panel -->
+            <div class="card">
+                <h3>📊 LIVE STATS</h3>
+                <button onclick="refreshStats()">REFRESH</button>
+                <button onclick="clearAll()">CLEAR ALL</button>
+                <div id="apiInfo"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    headers: { 'Content-Type': 'application/json' },
+                    ...options
+                });
+                return await response.json();
+            } catch (error) {
+                document.getElementById('statusBar').innerHTML = `❌ API Error: ${error.message}`;
+                return null;
+            }
+        }
+        
+        async function scrapeProxies() {
+            const limit = document.getElementById('scrapeLimit').value;
+            showStatus('Scraping proxies...');
+            
+            const result = await fetchAPI('/api/scrape', {
+                method: 'POST',
+                body: JSON.stringify({ limit: parseInt(limit) })
+            });
+            
+            if (result && result.success) {
+                displayProxies('scrapedList', result.proxies);
+                document.getElementById('scrapedCount').innerText = result.count;
+                showStatus(`✅ Scraped ${result.count} proxies`);
+            }
+        }
+        
+        async function checkProxies() {
+            const protocol = document.getElementById('protocol').value;
+            const scrapedList = document.getElementById('scrapedList');
+            const proxies = Array.from(scrapedList.querySelectorAll('.proxy-item'))
+                .map(el => el.innerText.split(' ')[0]);
+            
+            if (proxies.length === 0 || proxies[0] === 'No proxies scraped yet') {
+                showStatus('❌ Please scrape proxies first');
+                return;
+            }
+            
+            showStatus(`Checking ${proxies.length} proxies... This may take a moment`);
+            
+            const result = await fetchAPI('/api/check', {
+                method: 'POST',
+                body: JSON.stringify({ proxies, protocol, timeout: 5 })
+            });
+            
+            if (result && result.success) {
+                displayWorkingProxies(result.working_proxies);
+                document.getElementById('workingCount').innerText = result.count;
+                showStatus(`✅ Found ${result.count} working proxies`);
+            }
+        }
+        
+        async function startRotator() {
+            const port = document.getElementById('rotatorPort').value;
+            const result = await fetchAPI('/api/rotate/start', {
+                method: 'POST',
+                body: JSON.stringify({ port: parseInt(port), proxy_file: 'working_proxies.txt' })
+            });
+            
+            if (result && result.success) {
+                document.getElementById('rotatorStatus').innerHTML = '<span class="running">RUNNING</span>';
+                document.getElementById('rotatorInfo').innerHTML = `🟢 Running on port ${port}`;
+                showStatus(result.message);
+            } else {
+                showStatus('❌ Failed to start rotator');
+            }
+        }
+        
+        async function stopRotator() {
+            const result = await fetchAPI('/api/rotate/stop', { method: 'POST' });
+            if (result && result.success) {
+                document.getElementById('rotatorStatus').innerHTML = 'STOPPED';
+                document.getElementById('rotatorInfo').innerHTML = '';
+                showStatus(result.message);
+            }
+        }
+        
+        async function testSocks() {
+            const proxy = document.getElementById('socksProxy').value;
+            const type = document.getElementById('socksType').value;
+            
+            if (!proxy) {
+                showStatus('❌ Enter a SOCKS proxy');
+                return;
+            }
+            
+            const result = await fetchAPI(`/api/socks/test?proxy=${proxy}&proxy_type=${type}`);
+            if (result && result.success) {
+                const r = result.result;
+                const html = r.working ? 
+                    `✅ WORKING<br>Latency: ${r.latency}ms<br>External IP: ${r.external_ip}` :
+                    `❌ NOT WORKING<br>Error: ${r.error || 'Connection failed'}`;
+                document.getElementById('socksResult').innerHTML = html;
+                showStatus(r.working ? 'SOCKS proxy works!' : 'SOCKS proxy failed');
+            }
+        }
+        
+        async function testChain() {
+            const proxies = document.getElementById('chainProxies').value.split(',').map(p => p.trim());
+            const target = document.getElementById('targetUrl').value;
+            
+            if (proxies.length < 2) {
+                showStatus('❌ Need at least 2 proxies for chain');
+                return;
+            }
+            
+            const result = await fetchAPI('/api/chain', {
+                method: 'POST',
+                body: JSON.stringify({ proxies, target_url: target })
+            });
+            
+            if (result) {
+                const html = result.success ?
+                    `✅ CHAIN SUCCESS<br>Status: ${result.status_code}<br>Content: ${result.content_length} bytes` :
+                    `❌ CHAIN FAILED<br>Error: ${result.error}`;
+                document.getElementById('chainResult').innerHTML = html;
+                showStatus(result.success ? 'Chain successful' : 'Chain failed');
+            }
+        }
+        
+        async function refreshStats() {
+            const result = await fetchAPI('/api/stats');
+            if (result) {
+                document.getElementById('scrapedCount').innerText = result.scraped_count;
+                document.getElementById('workingCount').innerText = result.working_count;
+                document.getElementById('rotatorStatus').innerHTML = result.rotator_active ? 
+                    '<span class="running">RUNNING</span>' : 'STOPPED';
+            }
+            
+            // Also refresh lists
+            const proxies = await fetchAPI('/api/proxies?type=scraped&limit=50');
+            if (proxies && proxies.proxies.length > 0) {
+                displayProxies('scrapedList', proxies.proxies);
+            }
+            
+            const working = await fetchAPI('/api/proxies?type=working&limit=50');
+            if (working && working.working_proxies) {
+                displayWorkingProxies(working.working_proxies);
+            }
+        }
+        
+        function displayProxies(elementId, proxies) {
+            const container = document.getElementById(elementId);
+            if (!proxies || proxies.length === 0) {
+                container.innerHTML = '<div class="proxy-item">No proxies</div>';
+                return;
+            }
+            container.innerHTML = proxies.map(p => `<div class="proxy-item">${p}</div>`).join('');
+        }
+        
+        function displayWorkingProxies(proxies) {
+            const container = document.getElementById('workingList');
+            if (!proxies || proxies.length === 0) {
+                container.innerHTML = '<div class="proxy-item">No working proxies</div>';
+                return;
+            }
+            container.innerHTML = proxies.map(p => 
+                `<div class="proxy-item working">✅ ${p.proxy} - ${p.latency}ms (${p.type})</div>`
+            ).join('');
+        }
+        
+        function showStatus(msg) {
+            const statusBar = document.getElementById('statusBar');
+            statusBar.innerHTML = msg;
+            setTimeout(() => {
+                if (statusBar.innerHTML === msg) {
+                    statusBar.innerHTML = 'System ready. 🔴';
+                }
+            }, 3000);
+        }
+        
+        async function clearAll() {
+            if (confirm('Clear all proxies?')) {
+                document.getElementById('scrapedList').innerHTML = '<div class="proxy-item">No proxies scraped yet</div>';
+                document.getElementById('workingList').innerHTML = '<div class="proxy-item">No working proxies yet</div>';
+                document.getElementById('scrapedCount').innerText = '0';
+                document.getElementById('workingCount').innerText = '0';
+                showStatus('Cleared all data');
+            }
+        }
+        
+        // Auto-refresh every 10 seconds
+        setInterval(refreshStats, 10000);
+        refreshStats();
+    </script>
+</body>
+</html>
