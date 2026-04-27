@@ -18,3 +18,31 @@
 git clone https://github.com/Falconmx1/Mxmzapro.git
 cd Mxmzapro
 pip install -r requirements.txt
+
+🚀 Usage
+Scrape fresh proxies:
+bash
+
+python mxmza.py --scrape --limit 100
+
+Check working proxies:
+bash
+
+python mxmza.py --check proxies.txt --protocol http
+
+Start proxy rotator:
+bash
+
+python mxmza.py --rotate --port 8080
+
+🎯 Complete workflow:
+bash
+
+# 1. Get proxies
+python mxmza.py --scrape --limit 200 -o raw.txt
+
+# 2. Verify them
+python mxmza.py --check raw.txt --protocol http -o working.txt
+
+# 3. Start rotating
+python mxmza.py --rotate --port 8888
