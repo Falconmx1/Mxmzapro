@@ -46,3 +46,16 @@ python mxmza.py --check raw.txt --protocol http -o working.txt
 
 # 3. Start rotating
 python mxmza.py --rotate --port 8888
+
+Comandos para lanzar todo:
+# 1. Instalar dependencias
+pip install -r requirements.txt
+
+# 2. Modo Web UI (recomendado para empezar)
+python mxmza.py --web
+
+# 3. Modo API (para integraciones)
+python mxmza.py --api --api-port 8000
+
+# 4. Modo completo (todo junto)
+python mxmza.py --web --api
